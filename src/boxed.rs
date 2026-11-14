@@ -9,24 +9,24 @@ pub struct Box<'alloc, T: ?Sized> {
 
 impl<'alloc, T> Box<'alloc, T> {
     /// Allocates memory in the given allocator then places `x` into it.
-    pub fn new_in<A>(x: T, alloc: &Allocator<'alloc, A>) -> Self
+    pub fn new_in<A>(x: T, alloc: Allocator<'alloc, A>) -> Self
     where
-        A: std::Allocator + ?Sized,
+        A: std::Allocator,
     {
         let brand = core::marker::PhantomData;
-        let ptr = std::Box::into_non_null_with_allocator(std::Box::new_in(x, &alloc.inner)).0;
+        let ptr = std::Box::into_non_null_with_allocator(std::Box::new_in(x, alloc.inner)).0;
         Self { brand, ptr }
     }
 
     /// Consumes the `Box`, returning the wrapped value.
     #[expect(clippy::needless_pass_by_value, reason = "consumes the wrapped value")]
-    pub fn into_inner<A>(boxed: Self, alloc: &Allocator<'alloc, A>) -> T
+    pub fn into_inner<A>(boxed: Self, alloc: Allocator<'alloc, A>) -> T
     where
-        A: std::Allocator + ?Sized,
+        A: std::Allocator,
     {
         // SAFETY: `boxed.ptr` was acquired using `Box::into_non_null_with_allocator`
         // and the `Allocator` lifetime shenanigans ensure that the same allocator is used.
-        *unsafe { std::Box::from_non_null_in(boxed.ptr, &alloc.inner) }
+        *unsafe { std::Box::from_non_null_in(boxed.ptr, alloc.inner) }
     }
 }
 

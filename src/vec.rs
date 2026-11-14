@@ -24,12 +24,9 @@ impl<'alloc, T> Vec<'alloc, T> {
         }
     }
 
-    pub fn into_managed<'borrow, A>(
-        self,
-        alloc: &'borrow Allocator<'alloc, A>,
-    ) -> std::Vec<T, &'borrow A>
+    pub fn into_managed<A>(self, alloc: Allocator<'alloc, A>) -> std::Vec<T, A>
     where
-        A: std::Allocator + ?Sized,
+        A: std::Allocator,
     {
         // SAFETY: `self` is consumed, so no double free or use after free can occur.
         unsafe { Self::dup_to_managed(&self, alloc) }
@@ -39,15 +36,12 @@ impl<'alloc, T> Vec<'alloc, T> {
     ///
     /// This creates another vector that owns the same allocation.
     /// Do not use both `self` and the newly returned vector.
-    unsafe fn dup_to_managed<'borrow, A>(
-        &self,
-        alloc: &'borrow Allocator<'alloc, A>,
-    ) -> std::Vec<T, &'borrow A>
+    unsafe fn dup_to_managed<A>(&self, alloc: Allocator<'alloc, A>) -> std::Vec<T, A>
     where
-        A: std::Allocator + ?Sized,
+        A: std::Allocator,
     {
         // SAFETY: `self.{ptr, len, cap}` always form a valid vector.
-        unsafe { std::Vec::from_parts_in(self.ptr, self.len, self.cap, &alloc.inner) }
+        unsafe { std::Vec::from_parts_in(self.ptr, self.len, self.cap, alloc.inner) }
     }
 
     /// Appends an element to the back of a collection.
@@ -55,9 +49,9 @@ impl<'alloc, T> Vec<'alloc, T> {
     /// # Panics
     ///
     /// Panics if the new capacity exceeds `isize::MAX` _bytes_.
-    pub fn push<A>(&mut self, value: T, alloc: &Allocator<'alloc, A>)
+    pub fn push<A>(&mut self, value: T, alloc: Allocator<'alloc, A>)
     where
-        A: std::Allocator + ?Sized,
+        A: std::Allocator,
     {
         // SAFETY: `managed` is never dropped; either everything succeeds and
         // `into_parts_with_allocator` consumes it without deallocating it,
