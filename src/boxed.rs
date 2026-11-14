@@ -3,8 +3,8 @@ use crate::{Allocator, NonNull, PhantomInvariantLifetime, std};
 /// A box that doesn't store its allocator. Note that dropping it leaks memory;
 /// to destroy it correctly, use [`Box::into_inner`].
 pub struct Box<'alloc, T: ?Sized> {
-    pub(crate) brand: PhantomInvariantLifetime<'alloc>,
-    pub(crate) ptr: NonNull<T>,
+    brand: PhantomInvariantLifetime<'alloc>,
+    ptr: NonNull<T>,
 }
 
 impl<'alloc, T> Box<'alloc, T> {
