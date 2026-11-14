@@ -4,6 +4,8 @@ extern crate alloc;
 
 mod boxed;
 pub use boxed::Box;
+mod vec;
+pub use vec::Vec;
 
 use core::ptr::NonNull;
 
@@ -26,4 +28,5 @@ type PhantomInvariantLifetime<'alloc> = core::marker::PhantomData<fn(&'alloc ())
 mod std {
     pub use alloc::alloc::Allocator;
     pub use alloc::boxed::Box;
+    pub use alloc::vec::Vec;
 }
